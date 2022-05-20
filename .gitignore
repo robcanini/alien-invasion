@@ -20,4 +20,5 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+# Output dir of binaries
 bin/
