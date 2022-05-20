@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Earth invasion started")
+	fmt.Println("Planet X invasion started")
+
 }

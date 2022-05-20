@@ -22,3 +22,6 @@
 
 # Output dir of binaries
 bin/
+
+# Idea project files
+.idea/
