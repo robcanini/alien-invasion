@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
+	"github.com/robcanini/alien-invasion/internal/grid"
 	"github.com/robcanini/alien-invasion/internal/io"
 )
 
 func main() {
 	fmt.Println("Planet X invasion started")
 
-	err, _ := io.ReadFile("")
+	ch := make(chan *grid.City)
+
+	err := grid.InitState(&io.FileDao{FilePath: "/tmp/grid_data.db"}, ch)
 	if err != nil {
-		return
+		fmt.Println(err)
 	}
 }

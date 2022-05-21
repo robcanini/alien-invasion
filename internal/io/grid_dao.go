@@ -8,11 +8,11 @@ import (
 )
 
 type FileDao struct {
-	filePath string
+	FilePath string
 }
 
-func (fileDao *FileDao) fetchGrid() (error, []*grid.City) {
-	err, entries := ReadFile(fileDao.filePath)
+func (fileDao *FileDao) FetchGrid() (error, []*grid.City) {
+	err, entries := ReadFile(fileDao.FilePath)
 	if err != nil {
 		return err, nil
 	}
@@ -49,6 +49,7 @@ func toGridCity(entry *FileEntry, refsMap *map[string]*grid.City) (error, *grid.
 	var city = (*refsMap)[cityName]
 	if city == nil {
 		city = &grid.City{Name: cityName}
+		(*refsMap)[cityName] = city
 	}
 	city.Roads = roads
 	return nil, city
