@@ -1,39 +1,39 @@
 package io
 
 import (
+	"bytes"
 	"encoding/csv"
-	"fmt"
-	"log"
-	"strings"
-	"sync"
+	"os"
 )
-
-var mu sync.Mutex
 
 type FileEntry struct {
 	data []string
 }
 
-func readFile(path string) []*FileEntry {
-
-	// todo
-	
-	in := `first_name;last_name;username
-		"Rob";"Pike";rob
-		# lines beginning with a # character are ignored
-		Ken;Thompson;ken
-		"Robert";"Griesemer";"gri"
-		`
-
-	r := csv.NewReader(strings.NewReader(in))
-	r.Comma = ' '
-
+// ReadFile todo: not considering file size. custom encoder to read chunks
+func ReadFile(path string) (error, []*FileEntry) {
+	err, r := createFileReader(path)
+	if err != nil {
+		return err, nil
+	}
 	records, err := r.ReadAll()
 	if err != nil {
-		log.Fatal(err)
+		return err, nil
 	}
+	return toFileEntries(records)
+}
 
-	fmt.Print(records)
+func toFileEntries(records [][]string) (error, []*FileEntry) {
+	entries := make([]*FileEntry, len(records))
+	for index, entry := range records {
+		entries[index] = &FileEntry{data: entry}
+	}
+	return nil, entries
+}
 
-	return nil
+func createFileReader(path string) (error, *csv.Reader) {
+	content, err := os.ReadFile(path)
+	r := csv.NewReader(bytes.NewReader(content))
+	r.Comma = ' '
+	return err, r
 }
