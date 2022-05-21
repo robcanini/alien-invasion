@@ -39,7 +39,7 @@ func parseEntries(entries []*FileEntry) (error, []*grid.City) {
 func toGridCity(entry *FileEntry, refsMap *map[string]*grid.City) (error, *grid.City) {
 	entryData := entry.data
 	if len(entryData) <= 1 {
-		return errors.New("file entry must contain city name and at least one direction"), nil
+		return errors.New("city entry must contain name and at least one direction"), nil
 	}
 	cityName := entryData[0]
 	err, roads := extractCityRoads(entryData, cityName, refsMap)
@@ -79,5 +79,5 @@ func extractCityRoads(entryData []string, cityName string, refsMap *map[string]*
 }
 
 func enrichErrorWithIndex(err error, index int) error {
-	return errors.New(fmt.Sprintf("parsing error at line %d: %s", index, err.Error()))
+	return errors.New(fmt.Sprintf("parsing error at line %d: %s", index+1, err.Error()))
 }
