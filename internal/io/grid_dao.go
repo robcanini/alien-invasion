@@ -25,8 +25,9 @@ func (fileDao *FileDao) fetchGrid() (error, []*grid.City) {
 
 func parseEntries(entries []*FileEntry) (error, []*grid.City) {
 	cities := make([]*grid.City, len(entries))
+	refsMap := make(map[string]*grid.City)
 	for index, entry := range entries {
-		err, city := toGridCity(entry)
+		err, city := toGridCity(entry, &refsMap)
 		if err != nil {
 			return enrichErrorWithIndex(err, index), nil
 		}
@@ -35,23 +36,25 @@ func parseEntries(entries []*FileEntry) (error, []*grid.City) {
 	return nil, cities
 }
 
-func toGridCity(entry *FileEntry) (error, *grid.City) {
+func toGridCity(entry *FileEntry, refsMap *map[string]*grid.City) (error, *grid.City) {
 	entryData := entry.data
 	if len(entryData) <= 1 {
 		return errors.New("file entry must contain city name and at least one direction"), nil
 	}
 	cityName := entryData[0]
-	err, roads := extractCityRoads(entryData, cityName)
+	err, roads := extractCityRoads(entryData, cityName, refsMap)
 	if err != nil {
 		return err, nil
 	}
-	return nil, &grid.City{
-		Name:  cityName,
-		Roads: roads,
+	var city = (*refsMap)[cityName]
+	if city == nil {
+		city = &grid.City{Name: cityName}
 	}
+	city.Roads = roads
+	return nil, city
 }
 
-func extractCityRoads(entryData []string, cityName string) (error, []*grid.Road) {
+func extractCityRoads(entryData []string, cityName string, refsMap *map[string]*grid.City) (error, []*grid.Road) {
 	roads := make([]*grid.Road, len(entryData)-1)
 	for index, road := range entryData[1:] {
 		dirData := strings.Split(road, "=")
@@ -61,9 +64,14 @@ func extractCityRoads(entryData []string, cityName string) (error, []*grid.Road)
 		if dirData[1] == cityName {
 			return errors.New("city roads cannot contain a self reference"), nil
 		}
+		destinationCity := (*refsMap)[dirData[1]]
+		if destinationCity == nil {
+			destinationCity = &grid.City{Name: dirData[1]}
+			(*refsMap)[dirData[1]] = destinationCity
+		}
 		roads[index] = &grid.Road{
 			Direction:   grid.Direction(dirData[0]),
-			Destination: nil,
+			Destination: destinationCity,
 		}
 	}
 	return nil, roads
