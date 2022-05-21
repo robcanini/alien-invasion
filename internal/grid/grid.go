@@ -1,8 +1,8 @@
 package grid
 
 type City struct {
-	name  string
-	roads []*Road
+	Name  string
+	Roads []*Road
 }
 
 type Direction string
@@ -15,6 +15,6 @@ const (
 )
 
 type Road struct {
-	direction   Direction
-	destination *City
+	Direction   Direction
+	Destination *City
 }
