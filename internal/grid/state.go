@@ -10,26 +10,23 @@ type State struct {
 	data []*City
 }
 
-func InitState(fetcher Fetcher, evChan chan *City) error {
+func Init(fetcher Fetcher) (error, []*City) {
 	err, cities := fetcher.FetchGrid()
 	if err != nil {
-		return err
+		return err, nil
 	}
-	fmt.Println(cities)
-	for _, city := range cities {
+	state = State{data: cities}
+	PrintState()
+	return nil, cities
+}
+
+func PrintState() {
+	fmt.Println(state.data)
+	for _, city := range state.data {
 		fmt.Println(*city)
 		for _, road := range city.Roads {
 			fmt.Println(*road)
 		}
 		fmt.Println()
-	}
-	state = State{data: cities}
-	// listenToUpdateEvents(evChan)
-	return nil
-}
-
-func listenToUpdateEvents(evChan chan *City) {
-	for city := range evChan {
-		fmt.Println(city)
 	}
 }
