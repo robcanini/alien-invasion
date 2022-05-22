@@ -7,12 +7,12 @@ import (
 	"strings"
 )
 
-type FileDao struct {
+type FileFetcher struct {
 	FilePath string
 }
 
-func (fileDao *FileDao) FetchGrid() (error, []*grid.City) {
-	err, entries := ReadFile(fileDao.FilePath)
+func (fileFetcher *FileFetcher) FetchGrid() (error, []*grid.City) {
+	err, entries := ReadFile(fileFetcher.FilePath)
 	if err != nil {
 		return err, nil
 	}
@@ -48,8 +48,7 @@ func toGridCity(entry *FileEntry, refsMap *map[string]*grid.City) (error, *grid.
 	}
 	var city = (*refsMap)[cityName]
 	if city == nil {
-		city = &grid.City{Name: cityName}
-		(*refsMap)[cityName] = city
+		city = createCity(cityName, refsMap)
 	}
 	city.Roads = roads
 	return nil, city
@@ -67,8 +66,7 @@ func extractCityRoads(entryData []string, cityName string, refsMap *map[string]*
 		}
 		destinationCity := (*refsMap)[dirData[1]]
 		if destinationCity == nil {
-			destinationCity = &grid.City{Name: dirData[1]}
-			(*refsMap)[dirData[1]] = destinationCity
+			destinationCity = createCity(dirData[1], refsMap)
 		}
 		roads[index] = &grid.Road{
 			Direction:   grid.Direction(dirData[0]),
@@ -76,6 +74,12 @@ func extractCityRoads(entryData []string, cityName string, refsMap *map[string]*
 		}
 	}
 	return nil, roads
+}
+
+func createCity(cityName string, refsMap *map[string]*grid.City) *grid.City {
+	destinationCity := &grid.City{Name: cityName}
+	(*refsMap)[cityName] = destinationCity
+	return destinationCity
 }
 
 func enrichErrorWithIndex(err error, index int) error {

@@ -11,7 +11,7 @@ func main() {
 
 	ch := make(chan *grid.City)
 
-	err := grid.InitState(&io.FileDao{FilePath: "/tmp/grid_data.db"}, ch)
+	err := grid.InitState(&io.FileFetcher{FilePath: "/tmp/grid_data.db"}, ch)
 	if err != nil {
 		fmt.Println(err)
 	}
