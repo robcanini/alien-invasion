@@ -3,9 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/robcanini/alien-invasion/internal/aliens"
-	"github.com/robcanini/alien-invasion/internal/grid"
-	"github.com/robcanini/alien-invasion/internal/io"
+	"github.com/robcanini/alien-invasion/internal/invasion"
 	"os"
 )
 
@@ -16,15 +14,14 @@ var (
 
 func main() {
 	flag.Parse()
-	fmt.Println("Planet X invasion started")
 
-	err, cities := grid.Init(&io.FileFetcher{FilePath: *filePath})
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	err := invasion.Run(invasion.Spec{
+		PlanetName:           "X",
+		PlanetGridSourceType: invasion.FileSource,
+		PlanetGridSourceUri:  *filePath,
+		AliensNumber:         *aliensNumber,
+	})
 
-	err = aliens.SpawnInGrid(cities, *aliensNumber)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

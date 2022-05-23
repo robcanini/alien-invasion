@@ -1,8 +1,11 @@
 package grid
 
+import "github.com/robcanini/alien-invasion/internal/aliens"
+
 type City struct {
-	Name  string
-	Roads []*Road
+	Name    string
+	Roads   []*Road
+	Invader *aliens.Alien
 }
 
 type Direction string

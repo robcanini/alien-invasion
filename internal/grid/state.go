@@ -1,32 +1,54 @@
 package grid
 
 import (
+	"errors"
 	"fmt"
+	"github.com/robcanini/alien-invasion/internal/aliens"
+	"math/rand"
 )
 
-var state State
+var grid []*City
 
-type State struct {
-	data []*City
-}
-
-func Init(fetcher Fetcher) (error, []*City) {
+func Load(fetcher Fetcher) error {
 	err, cities := fetcher.FetchGrid()
 	if err != nil {
-		return err, nil
+		return err
 	}
-	state = State{data: cities}
-	PrintState()
-	return nil, cities
+	grid = cities
+	return nil
 }
 
-func PrintState() {
-	fmt.Println(state.data)
-	for _, city := range state.data {
+func SpreadAliens(aliens []*aliens.Alien) error {
+	if len(aliens) > len(grid) {
+		return errors.New(fmt.Sprintf("aliens number (%d) must be lower or equal than the cities number (%d) in the map", len(aliens), len(grid)))
+	}
+	shuffleGridSlice(&grid)
+	for index := 0; index < len(aliens); index++ {
+		invadeCity(grid[index], aliens[index])
+	}
+	return nil
+}
+
+func PrintGrid() {
+	fmt.Println(grid)
+	for _, city := range grid {
 		fmt.Println(*city)
 		for _, road := range city.Roads {
 			fmt.Println(*road)
 		}
 		fmt.Println()
 	}
+}
+
+func shuffleGridSlice(slicePtr *[]*City) {
+	slice := *slicePtr
+	for i := range slice {
+		j := rand.Intn(i + 1)
+		slice[i], slice[j] = slice[j], slice[i]
+	}
+}
+
+func invadeCity(city *City, alien *aliens.Alien) {
+	city.Invader = alien
+	fmt.Printf("Alien %s is about to invade %s\n", alien.Name, city.Name)
 }
