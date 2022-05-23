@@ -6,6 +6,7 @@ import (
 	"github.com/robcanini/alien-invasion/internal/aliens"
 	"github.com/robcanini/alien-invasion/internal/grid"
 	"github.com/robcanini/alien-invasion/internal/io"
+	"sync"
 )
 
 type DataSource string
@@ -21,22 +22,37 @@ type Spec struct {
 	AliensNumber         int
 }
 
-func Run(spec Spec) error {
+type Result struct {
+}
+
+func Run(spec Spec) (error, *Result) {
 	fmt.Printf("Planet %s invasion started\n", spec.PlanetName)
 	err, fetcher := buildGridFetcherStrategy(spec.PlanetGridSourceType, spec.PlanetGridSourceUri)
 	if err != nil {
-		return err
+		return err, nil
 	}
 	err = grid.Load(fetcher)
 	if err != nil {
-		return err
+		return err, nil
 	}
-	err = grid.SpreadAliens(aliens.Generate(spec.AliensNumber))
+	err, spawnedAliens := aliens.SpreadOn(grid.GetGrid(), spec.AliensNumber)
 	if err != nil {
-		return err
+		return err, nil
 	}
-	// todo: remove
-	grid.PrintGrid()
+	return startInvasion(spawnedAliens)
+}
+
+func startInvasion(aliens []*aliens.Alien) (error, *Result) {
+	var wg sync.WaitGroup
+	for _, alien := range aliens {
+		wg.Add(1)
+		alien.Startup(&wg)
+	}
+	wg.Wait()
+	return nil, extractResult()
+}
+
+func extractResult() *Result {
 	return nil
 }
 

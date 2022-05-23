@@ -15,7 +15,7 @@ var (
 func main() {
 	flag.Parse()
 
-	err := invasion.Run(invasion.Spec{
+	err, _ := invasion.Run(invasion.Spec{
 		PlanetName:           "X",
 		PlanetGridSourceType: invasion.FileSource,
 		PlanetGridSourceUri:  *filePath,

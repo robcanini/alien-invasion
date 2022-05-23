@@ -1,22 +1,44 @@
 package aliens
 
 import (
+	"fmt"
 	petname "github.com/dustinkirkland/golang-petname"
+	"github.com/robcanini/alien-invasion/internal/grid"
 	"math/rand"
+	"sync"
 	"time"
 )
 
 type Alien struct {
-	Name string
+	Name       string
+	Steps      int
+	TargetCity *grid.City
+	sync       *sync.WaitGroup
+}
+
+func (alien *Alien) increaseStepsCounter() {
+	alien.Steps++
+}
+
+func (alien *Alien) Startup(wg *sync.WaitGroup) {
+	alien.increaseStepsCounter()
+	alien.sync = wg
+	fmt.Printf("Alien %s started invading %s\n", alien.Name, alien.TargetCity.Name)
+	alien.die()
+}
+
+func (alien *Alien) die() {
+	fmt.Printf("Alien %s is dead in %s\n", alien.Name, alien.TargetCity.Name)
+	alien.sync.Done()
 }
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
-func Create() *Alien {
+func createAlien(targetCity *grid.City) *Alien {
 	alienName := generateName()
-	return &Alien{Name: alienName}
+	return &Alien{Name: alienName, Steps: 0, TargetCity: targetCity}
 }
 
 func generateName() string {
