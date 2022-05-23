@@ -36,7 +36,6 @@ func PrintGrid() {
 		for _, road := range city.Roads {
 			fmt.Println(*road)
 		}
-		fmt.Println()
 	}
 }
 
