@@ -1,2 +1,6 @@
-Foo north=Bar west=Baz south=Qu-ux
-Bar south=Foo west=Bee
+Rovigo north=Padova
+Padova south=Treviso west=Vicenza east=Venezia north=Belluno
+Venezia south=Rovigo west=Padova north=Treviso
+Vicenza west=Verona east=Padova north=Belluno south=Rovigo
+Treviso south=Venezia
+Belluno south=Padova

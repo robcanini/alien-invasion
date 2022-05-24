@@ -77,7 +77,7 @@ func extractCityRoads(entryData []string, cityName string, refsMap *map[string]*
 }
 
 func createCity(cityName string, refsMap *map[string]*grid.City) *grid.City {
-	destinationCity := &grid.City{Name: cityName}
+	destinationCity := grid.CreateCity(cityName)
 	(*refsMap)[cityName] = destinationCity
 	return destinationCity
 }
