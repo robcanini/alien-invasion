@@ -21,10 +21,18 @@ func (alien *Alien) increaseStepsCounter() {
 }
 
 func (alien *Alien) Startup(wg *sync.WaitGroup) {
-	alien.increaseStepsCounter()
 	alien.sync = wg
-	fmt.Printf("Alien %s started invading %s\n", alien.Name, alien.TargetCity.Name)
-	alien.die()
+	alien.invade(alien.TargetCity)
+}
+
+func (alien *Alien) invade(targetCity *grid.City) {
+	fmt.Printf("Alien %s started invading %s\n", alien.Name, targetCity.Name)
+	defer alien.increaseStepsCounter()
+
+	// aliens should fight
+	if targetCity.IsInvaded() {
+
+	}
 }
 
 func (alien *Alien) die() {

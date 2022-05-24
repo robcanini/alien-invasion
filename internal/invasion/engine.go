@@ -46,7 +46,7 @@ func startInvasion(aliens []*aliens.Alien) (error, *Result) {
 	var wg sync.WaitGroup
 	for _, alien := range aliens {
 		wg.Add(1)
-		alien.Startup(&wg)
+		go alien.Startup(&wg)
 	}
 	wg.Wait()
 	return nil, extractResult()

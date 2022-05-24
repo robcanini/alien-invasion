@@ -9,7 +9,9 @@ import (
 
 func SpreadOn(grid []*grid.City, number int) (error, []*Alien) {
 	if number > len(grid) {
-		return errors.New(fmt.Sprintf("aliens number (%d) must be lower or equal than the cities number (%d) in the map", number, len(grid))), nil
+		return errors.New(
+			fmt.Sprintf("aliens number (%d) must be lower or equal than the cities number (%d) in the map",
+				number, len(grid))), nil
 	}
 	shuffleGridSlice(&grid)
 	aliens := make([]*Alien, number)
