@@ -18,6 +18,7 @@ type Alien struct {
 }
 
 const MaxIterations = 1000
+const IterationSleepMs = 100
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -46,19 +47,17 @@ func (alien *Alien) Startup(wg *sync.WaitGroup) {
 	alien.sync = wg
 	for alien.Steps < MaxIterations && !alien.dead && alien.TargetCity != nil {
 		alien.invade(alien.aimNextCity())
+		time.Sleep(IterationSleepMs * time.Millisecond)
 	}
-	fmt.Printf("Alien %s invasion ended\n", alien.Name)
 }
 
 func (alien *Alien) invade(targetCity *grid.City) {
-	fmt.Printf("Alien %s march against %s\n", alien.Name, targetCity.Name)
 	// free previous occupied city
 	if alien.TargetCity != targetCity {
 		alien.TargetCity.Free()
 	}
 	alien.increaseStepsCounter()
 	if targetCity.IsInvaded() {
-		fmt.Printf("City of %s was already occupied. Alien %s fight against occupant\n", targetCity.Name, alien.Name)
 		fightOccupant(alien, targetCity)
 	} else {
 		conquerCity(alien, targetCity)

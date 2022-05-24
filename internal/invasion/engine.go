@@ -22,38 +22,32 @@ type Spec struct {
 	AliensNumber         int
 }
 
-type Result struct {
-}
-
-func Run(spec Spec) (error, *Result) {
+func Run(spec Spec) error {
 	fmt.Printf("Planet %s invasion started\n", spec.PlanetName)
 	err, fetcher := buildGridFetcherStrategy(spec.PlanetGridSourceType, spec.PlanetGridSourceUri)
 	if err != nil {
-		return err, nil
+		return err
 	}
 	err = grid.Load(fetcher)
 	if err != nil {
-		return err, nil
+		return err
 	}
 	err, spawnedAliens := aliens.SpreadOn(grid.GetGrid(), spec.AliensNumber)
 	if err != nil {
-		return err, nil
+		return err
 	}
-	return startInvasion(spawnedAliens)
+	startInvasion(spawnedAliens)
+	return nil
 }
 
-func startInvasion(aliens []*aliens.Alien) (error, *Result) {
+func startInvasion(aliens []*aliens.Alien) {
 	var wg sync.WaitGroup
 	for _, alien := range aliens {
 		wg.Add(1)
 		go alien.Startup(&wg)
 	}
 	wg.Wait()
-	return nil, extractResult()
-}
-
-func extractResult() *Result {
-	return nil
+	grid.PrintGrid()
 }
 
 func buildGridFetcherStrategy(sourceType DataSource, sourceUri string) (error, grid.Fetcher) {

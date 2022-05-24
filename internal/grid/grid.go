@@ -1,7 +1,6 @@
 package grid
 
 import (
-	"fmt"
 	"github.com/robcanini/alien-invasion/internal/utils"
 	"math/rand"
 	"sync"
@@ -28,7 +27,6 @@ func (city *City) IsInvaded() bool {
 }
 
 func (city *City) Free() {
-	fmt.Printf("City of %s has been released\n", city.Name)
 	if utils.IsMutexLocked(city.invaderFlag) {
 		city.invaderFlag.Unlock()
 	}
@@ -36,7 +34,6 @@ func (city *City) Free() {
 }
 
 func (city *City) Invade(invaderName string) {
-	fmt.Printf("City of %s has been invaded by %s\n", city.Name, invaderName)
 	city.invaderFlag.Lock()
 	city.invaderName = invaderName
 }
