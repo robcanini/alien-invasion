@@ -16,7 +16,7 @@ func Load(fetcher Fetcher) error {
 }
 
 func DestroyCity(city *City) {
-	city.destroyed = true
+	city.Destroyed = true
 	removeCityRefs(city)
 }
 
@@ -36,7 +36,7 @@ func GetGrid() []*City {
 
 func PrintGrid() {
 	for _, city := range grid {
-		if city.destroyed {
+		if city.Destroyed {
 			continue
 		}
 		fmt.Printf("%s", city.Name)

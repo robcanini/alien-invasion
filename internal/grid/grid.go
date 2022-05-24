@@ -11,14 +11,16 @@ type City struct {
 	Roads       []*Road
 	invaderFlag *sync.Mutex
 	invaderName string
-	destroyed   bool
+	Destroyed   bool
+	FightLock   *sync.Mutex
 }
 
 func CreateCity(name string) *City {
 	return &City{
 		Name:        name,
 		invaderFlag: &sync.Mutex{},
-		destroyed:   false,
+		Destroyed:   false,
+		FightLock:   &sync.Mutex{},
 	}
 }
 
