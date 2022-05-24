@@ -68,10 +68,7 @@ func extractCityRoads(entryData []string, cityName string, refsMap *map[string]*
 		if destinationCity == nil {
 			destinationCity = createCity(dirData[1], refsMap)
 		}
-		roads[index] = &grid.Road{
-			Direction:   grid.Direction(dirData[0]),
-			Destination: destinationCity,
-		}
+		roads[index] = grid.CreateRoad(grid.Direction(dirData[0]), destinationCity)
 	}
 	return nil, roads
 }

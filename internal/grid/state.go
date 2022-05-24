@@ -15,17 +15,36 @@ func Load(fetcher Fetcher) error {
 	return nil
 }
 
-// GetGrid todo: encapsulation required (?)
+func DestroyCity(city *City) {
+	city.destroyed = true
+	removeCityRefs(city)
+}
+
+func removeCityRefs(city *City) {
+	for _, it := range grid {
+		for _, road := range it.Roads {
+			if road.Destination == city {
+				road.crossable = false
+			}
+		}
+	}
+}
+
 func GetGrid() []*City {
 	return grid
 }
 
 func PrintGrid() {
-	fmt.Println(grid)
 	for _, city := range grid {
-		fmt.Println(*city)
-		for _, road := range city.Roads {
-			fmt.Println(*road)
+		if city.destroyed {
+			continue
 		}
+		fmt.Printf("%s", city.Name)
+		for _, road := range city.Roads {
+			if road.crossable {
+				fmt.Printf(" %s=%s", road.Direction, road.Destination.Name)
+			}
+		}
+		fmt.Println()
 	}
 }

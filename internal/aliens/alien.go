@@ -14,6 +14,28 @@ type Alien struct {
 	Steps      int
 	TargetCity *grid.City
 	sync       *sync.WaitGroup
+	dead       bool
+}
+
+const MaxIterations = 1000
+
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
+
+func createAlien(targetCity *grid.City) *Alien {
+	alienName := generateName()
+	return &Alien{
+		Name:       alienName,
+		Steps:      0,
+		TargetCity: targetCity,
+		dead:       false,
+	}
+}
+
+func generateName() string {
+	rand.Seed(time.Now().UnixNano())
+	return petname.Generate(2, "-")
 }
 
 func (alien *Alien) increaseStepsCounter() {
@@ -22,27 +44,43 @@ func (alien *Alien) increaseStepsCounter() {
 
 func (alien *Alien) Startup(wg *sync.WaitGroup) {
 	alien.sync = wg
-	alien.invade(alien.TargetCity)
+	for alien.Steps < MaxIterations && !alien.dead && alien.TargetCity != nil {
+		alien.invade(alien.aimNextCity())
+	}
+	fmt.Printf("Alien %s invasion ended\n", alien.Name)
 }
 
 func (alien *Alien) invade(targetCity *grid.City) {
 	fmt.Printf("Alien %s march against %s\n", alien.Name, targetCity.Name)
+	// free previous occupied city
+	if alien.TargetCity != targetCity {
+		alien.TargetCity.Free()
+	}
 	alien.increaseStepsCounter()
 	if targetCity.IsInvaded() {
-		fmt.Printf(
-			"City of %s was already occupied. Alien %s fight against occupant\n", targetCity.Name, alien.Name)
+		fmt.Printf("City of %s was already occupied. Alien %s fight against occupant\n", targetCity.Name, alien.Name)
 		fightOccupant(alien, targetCity)
 	} else {
 		conquerCity(alien, targetCity)
 	}
+}
 
-	alien.die()
+func (alien *Alien) aimNextCity() *grid.City {
+	if alien.Steps == 0 {
+		return alien.TargetCity
+	}
+	return alien.TargetCity.RandomDirection()
+}
+
+func (alien *Alien) die() {
+	alien.TargetCity.Free()
+	alien.dead = true
+	alien.sync.Done()
 }
 
 func conquerCity(attacker *Alien, targetCity *grid.City) {
-	targetCity.Invade()
+	targetCity.Invade(attacker.Name)
 	attacker.TargetCity = targetCity
-	fmt.Printf("City of %s has been conquered by %s\n", targetCity.Name, attacker.Name)
 }
 
 func fightOccupant(attacker *Alien, targetCity *grid.City) {
@@ -55,32 +93,12 @@ func fightOccupant(attacker *Alien, targetCity *grid.City) {
 		return
 	}
 	// battle begins!
-	finalClash(attacker, occupant)
+	finalClash(attacker, occupant, targetCity)
 }
 
-func finalClash(attacker *Alien, defensor *Alien) {
+func finalClash(attacker *Alien, defensor *Alien, city *grid.City) {
+	fmt.Printf("%s has been destroyed by alien %s and alien %s!\n", city.Name, attacker.Name, defensor.Name)
+	grid.DestroyCity(city)
 	attacker.die()
 	defensor.die()
-	fmt.Printf("Attacker %s and defensor %s are died in battle\n", attacker.Name, defensor.Name)
-	// city is destroyed
-}
-
-func (alien *Alien) die() {
-	fmt.Printf("Alien %s is dead in %s\n", alien.Name, alien.TargetCity.Name)
-	alien.TargetCity.Free()
-	alien.sync.Done()
-}
-
-func init() {
-	rand.Seed(time.Now().UTC().UnixNano())
-}
-
-func createAlien(targetCity *grid.City) *Alien {
-	alienName := generateName()
-	return &Alien{Name: alienName, Steps: 0, TargetCity: targetCity}
-}
-
-func generateName() string {
-	rand.Seed(time.Now().UnixNano())
-	return petname.Generate(2, "-")
 }
