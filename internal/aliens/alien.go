@@ -15,10 +15,11 @@ type Alien struct {
 	TargetCity *grid.City
 	sync       *sync.WaitGroup
 	dead       bool
+	idle       bool
 }
 
 const MaxIterations = 1000
-const IterationSleepMs = 100
+const InvasionSleepMs = 1
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -31,6 +32,7 @@ func createAlien(targetCity *grid.City) *Alien {
 		Steps:      0,
 		TargetCity: targetCity,
 		dead:       false,
+		idle:       false,
 	}
 }
 
@@ -45,18 +47,24 @@ func (alien *Alien) increaseStepsCounter() {
 
 func (alien *Alien) Startup(wg *sync.WaitGroup) {
 	alien.sync = wg
-	for alien.Steps < MaxIterations && !alien.dead && alien.TargetCity != nil {
-		alien.invade(alien.aimNextCity())
-		time.Sleep(IterationSleepMs * time.Millisecond)
+	for alien.Steps < MaxIterations && !alien.dead {
+		time.Sleep(InvasionSleepMs * time.Millisecond)
+		city := alien.aimNextCity()
+		// no directions available, alien trapped
+		if city == nil {
+			alien.trapped()
+			break
+		}
+		alien.invade(city)
 	}
 }
 
 func (alien *Alien) invade(targetCity *grid.City) {
+	alien.increaseStepsCounter()
 	// free previous occupied city
 	if alien.TargetCity != targetCity {
 		alien.TargetCity.Free()
 	}
-	alien.increaseStepsCounter()
 	if targetCity.IsInvaded() {
 		fightOccupant(alien, targetCity)
 	} else {
@@ -74,6 +82,13 @@ func (alien *Alien) aimNextCity() *grid.City {
 func (alien *Alien) die() {
 	alien.TargetCity.Free()
 	alien.dead = true
+	if !alien.idle {
+		alien.sync.Done()
+	}
+}
+
+func (alien *Alien) trapped() {
+	alien.idle = true
 	alien.sync.Done()
 }
 
