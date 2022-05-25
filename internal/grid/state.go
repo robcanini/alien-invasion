@@ -19,7 +19,6 @@ func DestroyCity(city *City) {
 	city.Free()
 	city.Destroyed = true
 	removeCityRefs(city)
-	fmt.Printf("City %s destroyed\n", city.Name)
 }
 
 func removeCityRefs(city *City) {
@@ -37,6 +36,7 @@ func GetGrid() []*City {
 }
 
 func PrintGrid() {
+	fmt.Println()
 	for _, city := range grid {
 		if city.Destroyed {
 			continue
