@@ -14,8 +14,8 @@ type Alien struct {
 	Steps      int
 	TargetCity *grid.City
 	sync       *sync.WaitGroup
-	dead       bool
-	idle       bool
+	Dead       bool
+	Idle       bool
 }
 
 const MaxIterations = 10000
@@ -24,14 +24,14 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
-func createAlien(targetCity *grid.City) *Alien {
+func CreateAlien(targetCity *grid.City) *Alien {
 	alienName := generateName()
 	return &Alien{
 		Name:       alienName,
 		Steps:      0,
 		TargetCity: targetCity,
-		dead:       false,
-		idle:       false,
+		Dead:       false,
+		Idle:       false,
 	}
 }
 
@@ -47,7 +47,7 @@ func (alien *Alien) increaseStepsCounter() {
 func (alien *Alien) Startup(wg *sync.WaitGroup) {
 	alien.sync = wg
 	multiplexor := sync.Mutex{}
-	for alien.Steps < MaxIterations && !alien.dead && !alien.idle {
+	for alien.Steps < MaxIterations && !alien.Dead && !alien.Idle {
 		multiplexor.Lock()
 		city := alien.aimNextCity()
 		alien.leaveCurrentCity()
@@ -90,11 +90,11 @@ func (alien *Alien) aimNextCity() *grid.City {
 }
 
 func (alien *Alien) die() {
-	alien.dead = true
+	alien.Dead = true
 }
 
 func (alien *Alien) trapped() {
-	alien.idle = true
+	alien.Idle = true
 }
 
 func conquerCity(attacker *Alien, targetCity *grid.City) {

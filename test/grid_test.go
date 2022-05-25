@@ -45,3 +45,11 @@ func TestShouldBeIdempotentFree(t *testing.T) {
 		t.Fatal("city should not be invaded")
 	}
 }
+
+func TestShouldBeDestroyedAfterDestroyCity(t *testing.T) {
+	city := grid.CreateCity("Foo")
+	grid.DestroyCity(city)
+	if !city.Destroyed {
+		t.Fatal("city should be destroyed")
+	}
+}
