@@ -4,3 +4,4 @@ Venezia south=Rovigo west=Padova north=Treviso
 Vicenza west=Verona east=Padova north=Belluno south=Rovigo
 Treviso south=Venezia
 Belluno south=Padova
+Verona east=Vicenza

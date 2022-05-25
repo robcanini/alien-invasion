@@ -12,7 +12,6 @@ type City struct {
 	invaderFlag *sync.Mutex
 	invaderName string
 	Destroyed   bool
-	FightLock   *sync.Mutex
 }
 
 func CreateCity(name string) *City {
@@ -20,7 +19,6 @@ func CreateCity(name string) *City {
 		Name:        name,
 		invaderFlag: &sync.Mutex{},
 		Destroyed:   false,
-		FightLock:   &sync.Mutex{},
 	}
 }
 

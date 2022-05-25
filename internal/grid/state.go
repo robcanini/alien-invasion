@@ -16,8 +16,10 @@ func Load(fetcher Fetcher) error {
 }
 
 func DestroyCity(city *City) {
+	city.Free()
 	city.Destroyed = true
 	removeCityRefs(city)
+	fmt.Printf("City %s destroyed\n", city.Name)
 }
 
 func removeCityRefs(city *City) {

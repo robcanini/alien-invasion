@@ -15,13 +15,24 @@ func SpreadOn(grid []*grid.City, number int) (error, []*Alien) {
 			fmt.Sprintf("aliens number (%d) must be lower or equal than the cities number (%d) in the map",
 				number, len(grid))), nil
 	}
+	aliensSlice := initAliensSlice(grid, number)
+	return nil, aliensSlice
+}
+
+func listenCommands(ch *chan *Alien) {
+	for cmd := range *ch {
+		fmt.Printf("Command received: %s", cmd)
+	}
+}
+
+func initAliensSlice(grid []*grid.City, number int) []*Alien {
 	shuffleSlice(&grid)
 	aliensSlice := make([]*Alien, number)
 	for index := 0; index < number; index++ {
 		aliensSlice[index] = createAlien(grid[index])
 	}
 	aliens = aliensSlice
-	return nil, aliensSlice
+	return aliensSlice
 }
 
 func shuffleSlice(slicePtr *[]*grid.City) {
@@ -34,7 +45,7 @@ func shuffleSlice(slicePtr *[]*grid.City) {
 
 func FindInvaderOf(city *grid.City) *Alien {
 	for _, alien := range aliens {
-		if alien.TargetCity == city {
+		if alien.TargetCity == city && !alien.dead {
 			return alien
 		}
 	}

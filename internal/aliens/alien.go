@@ -46,35 +46,36 @@ func (alien *Alien) increaseStepsCounter() {
 
 func (alien *Alien) Startup(wg *sync.WaitGroup) {
 	alien.sync = wg
-	for alien.Steps < MaxIterations && !alien.dead {
+	multiplexor := sync.Mutex{}
+	for alien.Steps < MaxIterations && !alien.dead && !alien.idle {
+		multiplexor.Lock()
 		city := alien.aimNextCity()
+		alien.leaveCurrentCity()
 		// no directions available, alien trapped
 		if city == nil {
 			alien.trapped()
+			multiplexor.Unlock()
 			break
 		}
 		alien.invade(city)
+		multiplexor.Unlock()
+	}
+	alien.sync.Done()
+}
+
+func (alien *Alien) leaveCurrentCity() {
+	alien.increaseStepsCounter()
+	if alien.TargetCity != nil {
+		alien.TargetCity.Free()
+		alien.TargetCity = nil
 	}
 }
 
 func (alien *Alien) invade(targetCity *grid.City) {
-	alien.increaseStepsCounter()
-	// free previous occupied city
-	if alien.TargetCity != targetCity {
-		alien.TargetCity.Free()
-	}
 	if targetCity.IsInvaded() {
-		multiplexedFight(targetCity, func() { fightOccupant(alien, targetCity) })
+		fightOccupant(alien, targetCity)
 	} else {
 		conquerCity(alien, targetCity)
-	}
-}
-
-func multiplexedFight(city *grid.City, fightFn func()) {
-	city.FightLock.Lock()
-	defer city.FightLock.Unlock()
-	if !city.Destroyed {
-		fightFn()
 	}
 }
 
@@ -82,20 +83,19 @@ func (alien *Alien) aimNextCity() *grid.City {
 	if alien.Steps == 0 {
 		return alien.TargetCity
 	}
+	if alien.TargetCity == nil {
+		return nil
+	}
 	return alien.TargetCity.RandomDirection()
 }
 
 func (alien *Alien) die() {
-	alien.TargetCity.Free()
 	alien.dead = true
-	if !alien.idle {
-		alien.sync.Done()
-	}
 }
 
 func (alien *Alien) trapped() {
 	alien.idle = true
-	alien.sync.Done()
+	fmt.Printf("Alien %s is trapped\n", alien.Name)
 }
 
 func conquerCity(attacker *Alien, targetCity *grid.City) {
@@ -105,20 +105,15 @@ func conquerCity(attacker *Alien, targetCity *grid.City) {
 
 func fightOccupant(attacker *Alien, targetCity *grid.City) {
 	occupant := FindInvaderOf(targetCity)
-	if occupant == nil {
-		fmt.Printf("Flag was raised in the unoccupied %s. This appears to be a deadlock\n", targetCity.Name)
-		// force flag lowering
-		targetCity.Free()
-		// it is not necessary to fight, alien can continue its invasion
-		return
+	if occupant != nil {
+		// battle begins!
+		finalClash(attacker, occupant, targetCity)
 	}
-	// battle begins!
-	finalClash(attacker, occupant, targetCity)
 }
 
 func finalClash(attacker *Alien, defensor *Alien, city *grid.City) {
-	fmt.Printf("%s has been destroyed by alien %s and alien %s!\n", city.Name, attacker.Name, defensor.Name)
 	grid.DestroyCity(city)
-	attacker.die()
 	defensor.die()
+	attacker.die()
+	fmt.Printf("%s has been destroyed by alien %s and alien %s!\n", city.Name, attacker.Name, defensor.Name)
 }
