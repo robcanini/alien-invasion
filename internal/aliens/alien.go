@@ -18,7 +18,7 @@ type Alien struct {
 	idle       bool
 }
 
-const MaxIterations = 1000
+const MaxIterations = 10000
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -95,7 +95,6 @@ func (alien *Alien) die() {
 
 func (alien *Alien) trapped() {
 	alien.idle = true
-	fmt.Printf("Alien %s is trapped\n", alien.Name)
 }
 
 func conquerCity(attacker *Alien, targetCity *grid.City) {
