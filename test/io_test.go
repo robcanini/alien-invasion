@@ -74,4 +74,10 @@ func TestShouldBeTwoRoadsParsedFetchGrid(t *testing.T) {
 	if len((*grid[0]).Roads) != 2 {
 		t.Fatal("roads slice should be of size 2")
 	}
+	if (*grid[0]).Roads[0].Direction != "north" || (*grid[0]).Roads[1].Direction != "south" {
+		t.Fatal("expecting to have a north and south roads in this city")
+	}
+	if (*grid[0]).Roads[0].Destination.Name != "Padova" || (*grid[0]).Roads[1].Destination.Name != "Nothing" {
+		t.Fatal("expecting to have a Padova and Nothing roads in this city")
+	}
 }
