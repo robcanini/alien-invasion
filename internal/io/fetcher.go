@@ -37,7 +37,7 @@ func parseEntries(entries []*FileEntry) (error, []*grid.City) {
 }
 
 func toGridCity(entry *FileEntry, refsMap *map[string]*grid.City) (error, *grid.City) {
-	entryData := entry.data
+	entryData := entry.Data
 	if len(entryData) <= 1 {
 		return errors.New("city entry must contain name and at least one road to another city"), nil
 	}

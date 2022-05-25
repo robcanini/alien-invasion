@@ -7,7 +7,7 @@ import (
 )
 
 type FileEntry struct {
-	data []string
+	Data []string
 }
 
 func ReadFile(path string) (error, []*FileEntry) {
@@ -18,7 +18,7 @@ func ReadFile(path string) (error, []*FileEntry) {
 	entries := make([]*FileEntry, 0)
 	for scanner.Scan() {
 		data := strings.Split(scanner.Text(), " ")
-		entries = append(entries, &FileEntry{data: data})
+		entries = append(entries, &FileEntry{Data: data})
 	}
 	return nil, entries
 }
