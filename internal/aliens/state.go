@@ -10,9 +10,9 @@ import (
 var aliens []*Alien
 
 func SpreadOn(grid []*grid.City, number int) (error, []*Alien) {
-	if number > len(grid) {
+	if number > len(grid) || number <= 0 {
 		return errors.New(
-			fmt.Sprintf("aliens number (%d) must be lower or equal than the cities number (%d) in the map",
+			fmt.Sprintf("aliens number (%d) must be greater than zero and lower or equal than the cities number (%d) in the map",
 				number, len(grid))), nil
 	}
 	aliensSlice := initAliensSlice(grid, number)
