@@ -46,19 +46,15 @@ func (alien *Alien) increaseStepsCounter() {
 
 func (alien *Alien) Startup(wg *sync.WaitGroup) {
 	alien.sync = wg
-	multiplexor := sync.Mutex{}
 	for alien.Steps < MaxIterations && !alien.Dead && !alien.Idle {
-		multiplexor.Lock()
 		city := alien.aimNextCity()
 		alien.leaveCurrentCity()
 		// no directions available, alien trapped
 		if city == nil {
 			alien.trapped()
-			multiplexor.Unlock()
 			break
 		}
 		alien.invade(city)
-		multiplexor.Unlock()
 	}
 	alien.sync.Done()
 }
